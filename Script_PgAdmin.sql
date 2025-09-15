@@ -34,5 +34,44 @@ CREATE TABLE IF NOT EXISTS pedidos(
     FOREIGN KEY (produto_id) REFERENCES produto(id_produto)
  );
  
+ 
+/********************************************************************************
+* SEÇÃO 2: DML (Data Manipulation Language) - INSERÇÃO DE DADOS
+********************************************************************************/
 
-     
+--CADASTRANDO CLIENTES
+
+insert into cliente (nome_cliente,email,telefone,endereco,cidade,uf) VALUES
+('Bruno','brunoloko@gmail.com','15 997325456','rua cabritinho','Itapetininga','SP'),
+('Ricardo','noloko@gmail.com','15 991125456','rua cabrinho','Itapetininga','SP'),
+('Matheus','Matheus@gmail.com','15 991555456','rua higor','tatui','SP'),
+('Hercules','Hercules@gmail.com','15 95565456','rua pedrada','Itapetininga','SP'),
+('Beatriz','bia@gmail.com','15 15 958854787','rua cabrinho','Itapetininga','SP')
+
+SELECT * FROM cliente
+
+--CADASTRANDO PRODUTOS
+--TRUNCATE É RESPONSAVEL POR LIMPAR INSERTS DE UMA TABELA E ZERALA
+
+truncate table produto RESTART IDENTITY CASCADE
+
+INSERT INTO produto(nome_produto,descricao,preco_unitario,estoque)values
+('Notebook','250GB',2590.00,15),
+('Iphone','500GB',3000.00,5),
+('Mouse','Rápido de mais',250.00,30),
+('Mouse Pad','Mouse Pad cobre sua mesa',100.00,40),
+('Monitor 4k','Resolução de altissima qualidade',4502.00,3)
+
+SELECT * FROM produto;
+
+
+--CADASTRANDO PEDIDO
+INSERT INTO pedidos(data_pedido,status_pedido,cliente_id) VALUES
+('10/02/2025','Aguardando',2)
+
+
+select * from pedidos
+
+
+
+
