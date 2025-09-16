@@ -67,11 +67,101 @@ SELECT * FROM produto;
 
 --CADASTRANDO PEDIDO
 INSERT INTO pedidos(data_pedido,status_pedido,cliente_id) VALUES
-('10/02/2025','Aguardando',2)
-
+--('10/03/2025','Aguardando',2),
+('10/03/2025','Aguardando',3),
+('10/03/2025','Aguardando',4),
+('05/02/2025','Aguardando',1),
+('02/02/2025','Aguardando',5)
 
 select * from pedidos
 
+--CADASTRANDO ITENS PEDIDOS
+INSERT INTO item_pedido(pedido_id,produto_id,quantidade,preco_total_item) VALUES
+(2,3,10,(10*250))
+(2,1,5,(5*2590)),
+(3,3,3,(3*250)),
+(4,5,1,(1*4502)),
+(1,4,11,(11*100)),
+(5,2,1,(1*3000))
+
+select * from item_pedido
+
+/********************************************************************************
+* SEÇÃO 3: CRIAÇÃO DE VIEWS
+********************************************************************************/
+
+--CRIANDO v_pedidos_com_detalhes
+
+CREATE VIEW v_pedidos_com_detalhes AS
+SELECT 	c.nome_cliente,
+		pe.data_pedido,
+		pe.status_pedido,
+		p.nome_produto,
+		ip.quantidade,
+		ip.preco_total_item
+FROM item_pedido ip
+INNER JOIN
+pedidos pe on pe.id_pedido = ip.pedido_id
+INNER JOIN
+cliente c on c.id_cliente = pe.cliente_id
+INNER JOIN
+produto p on p.id_produto = ip.produto_id
+;
+
+SELECT * FROM v_pedidos_com_detalhes
+
+--FINALIZANDO v_pedidos_com_detalhes
+
+--CRIANDO v_estoque_baixo
+CREATE VIEW v_estoque_baixo AS
+SELECT 	nome_produto,
+		estoque
+FROM produto 
+WHERE estoque < 10;
+
+SELECT * FROM v_estoque_baixo;
+
+--FINALIZANDO v_estoque_baixo
+
+--CRIANDO v_produtos_mais_vendidos
+	
+SELECT nome_produto,sum(quantidade) AS "quantidade"
+FROM v_pedidos_com_detalhes
+GROUP BY nome_produto
+ORDER BY quantidade DESC;
+
+--FINALIZANDO v_produtos_mais_vendidos
+
+--CRIANDO fn_calcular_total_pedido
+CREATE OR REPLACE FUNCTION fn_calcular_total_pedido(id_pedido INTEGER) AS
+$$ DECLARE
+	BEGIN
+		SELECT SUM(preco_total_item) AS "Valor total" 
+		from item_pedido
+		group by pedido_id
+	END;
+$$
+LANGUAGE plpgsql;
+/*
+CREATE OR REPLACE FUNCTION fn_calcular_total_pedido(p_pedido_id INTEGER)
+RETURNS DECIMAL AS -- Erro #1 corrigido: Especificamos o tipo de retorno
+$$
+DECLARE
+    valor_total DECIMAL; -- Criamos uma variável para guardar o resultado
+BEGIN
+    -- Erro #3 e #4 corrigidos: Usamos SELECT INTO para guardar o valor na variável
+    -- e WHERE para filtrar pelo ID do pedido passado como parâmetro.
+    SELECT SUM(preco_total_item) INTO valor_total
+    FROM item_pedido
+    WHERE pedido_id = p_pedido_id;
+
+    -- Erro #2 corrigido: Retornamos o valor que foi calculado e guardado na variável.
+    RETURN valor_total;
+END;
+$$
+LANGUAGE plpgsql;
+*/
+--FINALIZANDO fn_calcular_total_pedido
 
 
 
