@@ -77,12 +77,12 @@ select * from pedidos
 
 --CADASTRANDO ITENS PEDIDOS
 INSERT INTO item_pedido(pedido_id,produto_id,quantidade,preco_total_item) VALUES
-(2,3,10,(10*250))
+(2,3,10,(10*250)),
 (2,1,5,(5*2590)),
 (3,3,3,(3*250)),
 (4,5,1,(1*4502)),
 (1,4,11,(11*100)),
-(5,2,1,(1*3000))
+(2,2,1,(1*3000))
 
 select * from item_pedido
 
@@ -142,26 +142,45 @@ $$ DECLARE
 	END;
 $$
 LANGUAGE plpgsql;
-/*
+
 CREATE OR REPLACE FUNCTION fn_calcular_total_pedido(p_pedido_id INTEGER)
-RETURNS DECIMAL AS -- Erro #1 corrigido: Especificamos o tipo de retorno
+RETURNS DECIMAL AS
 $$
 DECLARE
-    valor_total DECIMAL; -- Criamos uma variável para guardar o resultado
+    valor_total DECIMAL;
 BEGIN
-    -- Erro #3 e #4 corrigidos: Usamos SELECT INTO para guardar o valor na variável
-    -- e WHERE para filtrar pelo ID do pedido passado como parâmetro.
     SELECT SUM(preco_total_item) INTO valor_total
     FROM item_pedido
     WHERE pedido_id = p_pedido_id;
 
-    -- Erro #2 corrigido: Retornamos o valor que foi calculado e guardado na variável.
     RETURN valor_total;
 END;
 $$
 LANGUAGE plpgsql;
-*/
---FINALIZANDO fn_calcular_total_pedido
 
+
+
+CREATE OR REPLACE FUNCTION  fn_atualizar_estoque()
+	RETURNS TRIGGER AS 
+	$$
+		BEGIN
+			UPDATE produto 
+				SET estoque = estoque - NEW.quantidade
+				WHERE id_produto = NEW.produto_id;
+			RETURN NEW;
+		END;
+	$$ LANGUAGE plpgsql;
+	
+	CREATE OR REPLACE TRIGGER trg_atualizar_estoque
+	AFTER INSERT ON item_pedido
+	FOR EACH ROW
+	EXECUTE FUNCTION fn_atualizar_estoque();
+	
+	
+	INSERT INTO item_pedido(pedido_id,produto_id,quantidade,preco_total_item) VALUES
+	(4,4,10,(10*250));
+
+	
+	
 
 
